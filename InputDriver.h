@@ -1,7 +1,7 @@
 #ifndef INPUTDRIVER_H
 #define INPUTDRIVER_H
 
-#include <tuple>
+#include <thread>
 
 enum class Direction {
     UP,
@@ -26,6 +26,7 @@ protected:
 public:
     static Input& getInstance();
     ~Input();
+    void handleInputThread(bool& running);
     void searchForInput();
     Direction getDirection();
     Button getButton();

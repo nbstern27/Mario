@@ -1,6 +1,6 @@
 #include "GameDriver.h"
 
-Game::Game(sf::RenderWindow* window):
+Game::Game(sf::RenderWindow& window):
     m_window(window),
     m_player(new Player()),
     m_Game_State(Game_State::CUTSCENE),

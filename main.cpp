@@ -21,14 +21,14 @@ const float FPS = 240.0f; // Frame rate
 const float TIMEPERLOGICUPDATE = 1.0f / LOGICRATE;
 const float TIMEPERFRAME = 1.0f / FPS;
 
-void advanceFrame(Game* game) {
+void advanceFrame(std::unique_ptr<Game>& game) {
     game->updatePhysics();
     game->updateGraphics();
 }
 
 int main() {
-    RenderWindow* window = new RenderWindow(VideoMode(SCREENWIDTH, SCREENHEIGHT), "Mario");
-    Game* game = new Game(window);
+    RenderWindow window(VideoMode(SCREENWIDTH, SCREENHEIGHT), "Mario");
+    std::unique_ptr<Game> game = std::make_unique<Game>(window);
     bool doNextFrame = true;
     if (doNextFrame) {
         advanceFrame(game);

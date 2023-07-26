@@ -20,28 +20,29 @@ enum class Game_State {
 };
 
 class Game {
-    private:
-        sf::RenderWindow& m_window;
-        Player* m_player;
-        Game_State m_Game_State;
-        uint8_t m_numLives;
-        bool m_isGroundBelowPlayer
+private:
+    sf::RenderWindow& m_window;
+    Player* m_player;
+    Game_State m_Game_State;
+    uint8_t m_numLives;
+    bool m_isGroundBelowPlayer
 
-    protected:
-    public:
-        Game(sf::RenderWindow& window);
-        ~Game();
-        
-        void updatePhysics(const float& dt);
-        void updateGraphics();
+protected:
+public:
+    Game(sf::RenderWindow& window);
+    ~Game();
+    
+    void updatePhysics(const float& dt);
+    void updateGraphics();
 
-        void movePlayer(const float& dt);
-        void moveEntities();
-        void checkCollisions();
+    void checkCollisions();
+    void movePlayer(const float& dt);
+    void moveEntities(const float& dt);
+    void moveScreen();
 
-        void drawBackground();
-        void drawPlayer();
-        void drawEntities();
+    void drawBackground();
+    void drawPlayer();
+    void drawEntities();
 };
 
 #endif // GAMEDRIVER_H

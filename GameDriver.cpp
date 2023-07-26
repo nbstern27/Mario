@@ -15,12 +15,19 @@ void Game::updatePhysics(const float& dt) {
     checkCollisions();
     movePlayer();
     moveEntities();
+    moveScreen();
 }
         
 void Game::updateGraphics() {
     drawBackground();
     drawPlayer();
     drawEntities();
+}
+
+void Game::checkCollisions() {
+    //!!!QUADTREE??
+    //!!!TRY BRUTE FORCE FIRST
+    m_isGroundBelowPlayer = true;
 }
 
 void Game::movePlayer(const float& dt) {
@@ -62,10 +69,10 @@ void Game::moveEntities(const float& dt) {
 
 }
 
-void Game::checkCollisions() {
-    //!!!QUADTREE??
-    //!!!TRY BRUTE FORCE FIRST
-    m_isGroundBelowPlayer = true;
+void Game::moveScreen() {
+    if (m_player->m_x < SCROLL_SCREEN_MARIO_X) {
+        return;
+    }
 }
 
 void Game::drawBackground() {

@@ -17,9 +17,6 @@ static const float FRAME_RATE(240.0f); // Frame rate
 
 static const uint32_t INIT_MARIO_X(4);
 static const uint32_t INIT_MARIO_Y(4);
-static const uint32_t INIT_MARIO_SUBX(0);
-static const uint32_t INIT_MARIO_SUBY(0);
-        
 static const float INIT_MARIO_VX(0);
 static const float INIT_MARIO_VY(0);
 static const float INIT_MARIO_AX(0);

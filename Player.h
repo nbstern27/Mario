@@ -1,7 +1,6 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include "Constants.h"
 #include "Entity.h"
 #include <cstdint>
 
@@ -13,6 +12,8 @@ enum class Mario_State {
 
 class Player : public Entity {
 private:
+    int m_subx;
+    int m_suby;
 protected:
 public:
     Mario_State m_Mario_State;
@@ -20,11 +21,8 @@ public:
     Player();
     ~Player();
 
-    bool move(const float dt) override;
-    void updatePosition(const float dt);
-    void updateVelocity(const float dt);
-    void setVelocityX(const float vx);
-    void setAcceleration(const float ax, const float ay);
+    bool move(const float dt, const bool isGroundBelow) override;       // Mario moves with user input
+    void updatePosition(const float dt) overide;                        // Mario moves with subpixel precision
 };
 
 #endif // PLAYER_H

@@ -1,21 +1,21 @@
 #include "Player.h"
 
-Player::Player()
-    : Entity(INIT_MARIO_X, INIT_MARIO_Y, INIT_MARIO_SUBX, INIT_MARIO_SUBY,
-            INIT_MARIO_VX, INIT_MARIO_VY, INIT_MARIO_AX, INIT_MARIO_AY, 
-            INIT_MARIO_WIDTH, INIT_MARIO_HEIGHT),
-      m_Mario_State(Mario_State::SHORT)
+Player::Player() : 
+    Entity(INIT_MARIO_X, INIT_MARIO_Y, INIT_MARIO_VX, INIT_MARIO_VY, INIT_MARIO_AX, INIT_MARIO_AY, INIT_MARIO_WIDTH, INIT_MARIO_HEIGHT),
+    m_subx(0),
+    m_suby(0),
+    m_Mario_State(Mario_State::SHORT)
 {}
 
 Player::~Player() {
 
 }
 
-bool Player::move(const float& dt, bool isGroundBelowPlayer) {
+bool Player::move(const float& dt, bool isGroundBelow) {
     float ax(0);
     float ay(0);
 
-    if (isGroundBelowPlayer) {
+    if (isGroundBelow) {
         ay = 0;
     } else {
         ay = GRAVITY_ACCELERATION;
@@ -26,11 +26,11 @@ bool Player::move(const float& dt, bool isGroundBelowPlayer) {
     Direction dir = Input::getInstance().getDirection();
 
     if (dir == Direction::UP) {
-        if (!isGroundBelowPlayer) {
+        if (!isGroundBelow) {
             //!!!JUMP
         }
     } else if (dir == Direction::DOWN) {
-        if (isGroundBelowPlayer) {
+        if (isGroundBelow) {
             //!!!CROUTCH
         }
     } else if (dir == Direction::RIGHT) {
@@ -68,24 +68,4 @@ void Player::updatePosition(const float dt) {
     //Get the remaider subpixels
     m_subx %= SUBPIXELS_PER_PIXEL;
     m_suby %= SUBPIXELS_PER_PIXEL;
-}
-
-void Player::updateVelocity(const float dt) {
-    //Update velocity over time dt
-    m_vx += m_ax * dt;
-    m_vy += m_ay * dt;
-
-    //Ensure we don't exceed max velocity
-    m_vx = std::max(m_vx, TERMINAL_VELOCITY_X)
-    m_vy = std::max(m_vy, TERMINAL_VELOCITY_Y)
-
-}
-
-void Player::setVelocityX(const float vx) {
-    m_vx = vx;
-}
-
-void Player::setAcceleration(const float ax, const float ay) {
-    m_ax = ax;
-    m_ay = ay;
 }

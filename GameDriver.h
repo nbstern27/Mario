@@ -41,7 +41,7 @@ public:
 
     void moveAllEntities(const float& dt);
     void checkCollisions();
-    void moveScreen();
+    void tryMoveScreen();
 
     void drawBackground();
     void drawPlayer();

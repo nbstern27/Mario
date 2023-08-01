@@ -1,15 +1,10 @@
 #include "Player.h"
 
-Player::Player():
-    m_Mario_State(Mario_State::SHORT),
-    m_x(INIT_MARIO_X),
-    m_y(INIT_MARIO_Y),
-    m_subx(INIT_MARIO_SUBX),
-    m_suby(INIT_MARIO_SUBY),
-    m_vx(INIT_MARIO_VX),
-    m_vy(INIT_MARIO_VY),
-    m_ax(INIT_MARIO_AX),
-    m_ay(INIT_MARIO_AY)
+Player::Player()
+    : Entity(INIT_MARIO_X, INIT_MARIO_Y, INIT_MARIO_SUBX, INIT_MARIO_SUBY,
+            INIT_MARIO_VX, INIT_MARIO_VY, INIT_MARIO_AX, INIT_MARIO_AY, 
+            INIT_MARIO_WIDTH, INIT_MARIO_HEIGHT),
+      m_Mario_State(Mario_State::SHORT)
 {}
 
 Player::~Player() {

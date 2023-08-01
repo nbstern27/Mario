@@ -1,7 +1,19 @@
 #include "Entity.h"
 
-Entity::Entity(int x, int y, int width, int height)
-    : _x(x), _y(y), _width(width), _height(height) {}
+Entity::Entity(int x, int y, int subx, int suby, float vx, float vy, float ax, float ay, int width, int height) : 
+    m_x(x),
+    m_y(y), 
+    m_subx(subx),
+    m_suby(suby),
+    m_vx(vx),
+    m_vy(vy),
+    m_ax(ax),
+    m_ay(ay),
+    m_prevX(0),
+    m_prevY(0),
+    m_width(width),
+    m_height(height)
+{}
 
 Entity::~Entity() {}
 

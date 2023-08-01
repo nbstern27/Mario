@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "Constants.h"
+#include "Entity.h"
 #include <cstdint>
 
 enum class Mario_State {
@@ -10,28 +11,16 @@ enum class Mario_State {
     STAR
 };
 
-class Player {
+class Player : public Entity {
 private:
-    uint32_t m_subx;
-    uint32_t m_suby;
-
-    float m_vx;
-    float m_vy;
-    float m_ax;
-    float m_ay;
-
 protected:
 public:
     Mario_State m_Mario_State;
-    uint32_t m_x;
-    uint32_t m_y;
-    uint32_t m_prevX;
-    uint32_t m_prevY;
 
     Player();
     ~Player();
 
-    void move(const float dt) override;
+    bool move(const float dt) override;
     void updatePosition(const float dt);
     void updateVelocity(const float dt);
     void setVelocityX(const float vx);

@@ -2,7 +2,7 @@
 
 Game::Game(sf::RenderWindow& window):
     m_window(window),
-    m_quadtree(QUADTREE_LEFT_X, QUADTREE_BOTTOM_Y, QUADTREE_WIDTH, QUADTREE_HEIGHT),
+    m_quadtree(LEVEL_BOTTOM_LEFT_X, LEVEL_BOTTOM_LEFT_Y, LEVEL_WIDTH, LEVEL_HEIGHT),
     m_entities(),
     m_player(std::make_unique<Player>()),
     m_Game_State(Game_State::CUTSCENE),

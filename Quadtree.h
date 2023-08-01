@@ -16,19 +16,20 @@ private:
     std::vector<Entity*> _entities;
     QuadtreeNode* _children[4] = {nullptr};
     int _level;
-    int _x;
-    int _y;
+    int _x;                 // Bottom-left corner x-value of quadtree
+    int _y;                 // Bottom-left corner y-value of quadtree
+    int _width;             // Width in the x-direction of quadtree
+    int _height;            // Height in the y-direction of quadtree
 
-protected:
+    void splitNode();
+    std::vector<Quadrant> getQuadrants(Entity* entity);
+    bool isEntityOverlapping(Entity* entity, int x, int y, int width, int height);
+
+    friend class Quadtree;
+
 public:
-    QuadtreeNode(int level, int x, int y): _level(level), _x(x), _y(y) {}
-    ~QuadtreeNode() {
-        for (int i = 0; i < 4; ++i) {
-            delete _children[i];
-        }
-        _children = {nullptr};
-        _entities.clear();
-    }
+    QuadtreeNode(int level, int x, int y, int width, int height);
+    ~QuadtreeNode();
 };
 
 class Quadtree {
@@ -37,35 +38,18 @@ private:
     int _width;
     int _height;
 
-    void destroy(QuadtreeNode* node);
-
-    void insertHelper(QuadtreeNode* node, Entity* entity);
+    bool insertHelper(QuadtreeNode* node, Entity* entity);
     bool removeHelper(QuadtreeNode* node, Entity* entity);
-    
-    void splitNode(QuadtreeNode* node);
-    Quadrant getQuadrant(QuadtreeNode* node, Entity* entity);
-    
+    void resolveCollisionsHelper(QuadtreeNode* node);
 
-protected:
 public:
-    Quadtree(): 
-        _root(new QuadtreeNode(0, QUADTREE_WEST_X, QUADTREE_SOUTH_Y)), 
-        _width(QUADTREE_EAST_X), 
-        _height(QUADTREE_NORTH_Y) 
-    {}
+    Quadtree(int x, int y, int width, int height);
+    ~Quadtree();
 
-    ~Quadtree() {
-        destroy(_root);
-        delete _root;
-    }
+    bool insert(Entity* entity);
+    bool remove(Entity* entity);
 
-    void insert(Entity* entity) {
-        insertHelper(_root, entity);
-    }
-
-    bool remove(Entity* entity) {
-        return removeHelper(_root, entity);
-    }
+    void resolveCollisions();
 };
 
 #endif // QUADTREE_H

@@ -31,6 +31,7 @@ public:
     Player();
     ~Player();
 
+    void move(const float dt) override;
     void updatePosition(const float dt);
     void updateVelocity(const float dt);
     void setVelocityX(const float vx);

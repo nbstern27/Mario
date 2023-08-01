@@ -1,90 +1,164 @@
 #include "Quadtree.h"
 
-void Quadtree::destroy(QuadtreeNode* node) {
-    if (node == nullptr) {
-        return;
-    }
+QuadtreeNode::QuadtreeNode(int level, int x, int y, int width, int height)
+    : _level(level), _x(x), _y(y), _width(width), _height(height) {}
 
+QuadtreeNode::~QuadtreeNode() {
     for (int i = 0; i < 4; ++i) {
-        destroy(node->_children[i]);
-        delete node->_children[i];
-        node->_children[i] = nullptr;
+        delete _children[i];
+        _children[i] = nullptr;
     }
-
-    node->_entities.clear();
+    _entities.clear();
 }
 
-void Quadtree::insertHelper(QuadtreeNode* node, Entity* entity) {
+void QuadtreeNode::splitNode() {
+    int subWidth = _width >> 1;
+    int subHeight = _height >> 1;
+
+    _children[NORTH_WEST] = new QuadtreeNode(_level + 1, _x, _y, subWidth, subHeight);
+    _children[NORTH_EAST] = new QuadtreeNode(_level + 1, _x + subWidth, _y, subWidth, subHeight);
+    _children[SOUTH_WEST] = new QuadtreeNode(_level + 1, _x, _y + subHeight, subWidth, subHeight);
+    _children[SOUTH_EAST] = new QuadtreeNode(_level + 1, _x + subWidth, _y + subHeight, subWidth, subHeight);
+
+    // Redistribute entities to the appropriate child nodes
+    for (Entity* entity : _entities) {
+        std::vector<Quadrant> quadrants = getQuadrants(entity);
+        _children[quadrant]->insert(entity);
+    }
+
+    _entities->clear();
+}
+
+std::vector<Quadrant> QuadtreeNode::getQuadrants(Entity* entity) {
+    std::vector<Quadrant> quadrants;
+    for (int i = 0; i < 4; ++i) {
+        if (isEntityOverlapping(entity, _children[i]->_x, _children[i]->_y, _children[i]->_width, _children[i]->_height)) {
+            quadrants.push_back(static_cast<Quadrant>(i));
+        }
+    }
+    return quadrants;
+}
+
+bool QuadtreeNode::isEntityOverlapping(Entity* entity, int x, int y, int width, int height) {
+    auto bbox = entity->getBoundingBox();
+    return !(bbox[0] + bbox[2] <= x || bbox[0] >= x + width || bbox[1] + bbox[3] <= y || bbox[1] >= y + height);
+}
+
+Quadtree::Quadtree(int x, int y, int width, int height)
+    : _root(new QuadtreeNode(0, x, y, width, height)), _width(width), _height(height) {}
+
+Quadtree::~Quadtree() {
+    delete _root;
+    _root = nullptr;
+}
+
+bool Quadtree::insert(Entity* entity) {
+    return insertHelper(_root, entity);
+}
+
+bool Quadtree::insertHelper(QuadtreeNode* node, Entity* entity) {
     if (node == nullptr) {
         return;
     }
 
-    if (node->_entities.size() < 4 || node->_level >= MAX_QUADTREE_LEVEL) {
-        // If the node has space or reached the maximum level, add the entity here
+    // The entity's bounding box does not fit within this node
+    if (!node->isEntityOverlapping(entity, node->_x, node->_y, node->_width, node->_height)) {
+        return false;
+    }
+
+    // If the node has children, go to them to insert
+    if (node->_children[0] != nullptr) {
+        bool inserted = false;
+        for (auto& child : node->_children) {
+            inserted |= insertHelper(child, entity);
+        }
+
+        return inserted;
+    }
+
+    // If the node has space or reached the maximum level, add the entity here
+    if (node->_entities.size() < MAX_NUM_ENTITIES_PER_QUADTREE_NODE || node->_level >= MAX_QUADTREE_LEVEL) {
         node->_entities.push_back(entity);
-        return;
+        return true;
     }
 
-    // Otherwise, split the node and redistribute entities to children
-    if (node->_children[0] == nullptr) {
-        splitNode(node);
-    }
+    // Too many entitites in node, time to split!
+    node->splitNode();
+    return true;
+}
 
-    // Redistribute entities to the appropriate child nodes
-    for (Entity* e : node->_entities) {
-        Quadrant quadrant = getQuadrant(node, e);
-        insertHelper(node->_children[quadrant], e);
-    }
-
-    node->entities.clear(); // Clear the entities from the current node
+bool Quadtree::remove(Entity* entity) {
+    return removeHelper(_root, entity);
 }
 
 bool Quadtree::removeHelper(QuadtreeNode* node, Entity* entity) {
     if (node == nullptr) {
+        return;
+    }
+
+    // The entity's bounding box does not fit within this node
+    if (!node->isEntityOverlapping(entity, node->_x, node->_y, node->_width, node->_height)) {
         return false;
     }
 
-    // Find and remove the entity from the current node
+    // If the node has children, go to them to remove
+    if (node->_children[0] != nullptr) {
+        bool removed = false;
+        bool childrenEmptyCount = 0;
+        for (auto& child : node->_children) {
+            removed |= removeHelper(child, entity);
+            if (child->_entities.size() == 0) {
+                childrenEmptyCount++;
+            }
+        }
+
+        // All children are empty! Delete them.
+        if (childrenEmptyCount >= 4) {
+            for (auto& child : node->_children) {
+                delete child;
+                child = nullptr;
+            }
+        }
+
+        return removed;
+    }
+
+    // Entity is in the node!
     auto it = std::find(node->_entities.begin(), node->_entities.end(), entity);
     if (it != node->_entities.end()) {
         node->_entities.erase(it);
         return true;
     }
 
-    // If the node has children, try to remove from them
-    if (node->_children[0] != nullptr) {
-        Quadrant quadrant = getQuadrant(node, entity);
-        return removeHelper(node->_children[quadrant], entity);
-    }
-
     return false; // Element not found in the quadtree
 }
 
-void Quadtree::splitNode(QuadtreeNode* node) {
-    int subWidth = node->_x + (_width >> 1);
-    int subHeight = node->_y + (_height >> 1);
-
-    node->children[NORTH_WEST] = new QuadtreeNode(node->_level + 1, node->_x, node->_y);
-    node->children[NORTH_EAST] = new QuadtreeNode(node->_level + 1, subWidth, node->_y);
-    node->children[SOUTH_WEST] = new QuadtreeNode(node->_level + 1, node->_x, subHeight);
-    node->children[SOUTH_EAST] = new QuadtreeNode(node->_level + 1, subWidth, subHeight);
+void Quadtree::resolveCollisions() {
+    resolveCollisionsHelper(_root);
 }
 
-Quadrant Quadtree::getQuadrant(QuadtreeNode* node, Entity* entity) {
-    int subWidth = node->_x + (_width >> 1);
-    int subHeight = node->_y + (_height >> 1);
+void Quadtree::resolveCollisionsHelper(QuadtreeNode* node) {
+    if (node == nullptr) {
+        return;
+    }
 
-    if (entity->_x >= subWidth) {
-        if (entity->_y >= subHeight) {
-            return SOUTH_EAST;
-        } else {
-            return NORTH_EAST;
+    // If the node has children, go to them to check for collisions
+    if (node->_children[0] != nullptr) {
+        for (auto& child : node->_children) {
+            resolveCollisionsHelper(child);
         }
-    } else {
-        if (entity->_y >= subHeight) {
-            return SOUTH_WEST;
-        } else {
-            return NORTH_WEST;
+        
+        return;
+    }
+
+    // No children: resolve conflicts in current node
+    for (size_t i = 0; i < node->_entities.size(); ++i) {
+        for (size_t j = i + 1; j < node->_entities.size(); ++j) {
+            Entity* entity1 = node->_entities[i];
+            Entity* entity2 = node->_entities[j];
+            if (entity1->isCollidingWith(entity2)) {
+                resolveCollision(entity1, entity2);
+            }
         }
     }
 }

@@ -2,20 +2,24 @@
 
 Game::Game(sf::RenderWindow& window):
     m_window(window),
-    m_player(new Player()),
+    m_quadtree(QUADTREE_LEFT_X, QUADTREE_BOTTOM_Y, QUADTREE_WIDTH, QUADTREE_HEIGHT),
+    m_entities(),
+    m_player(std::make_unique<Player>()),
     m_Game_State(Game_State::CUTSCENE),
     m_numLives(5)
-{}
+{
+    m_entities.push_back(m_player);
+    m_quadtree.insert(m_player);
+}
 
 Game::~Game() {
 
 }
 
 void Game::updatePhysics(const float& dt) {
+    moveAllEntities(dt);
     checkCollisions();
-    movePlayer();
-    moveEntities();
-    moveScreen();
+    tryMoveScreen();
 }
         
 void Game::updateGraphics() {
@@ -25,51 +29,32 @@ void Game::updateGraphics() {
 }
 
 void Game::checkCollisions() {
-    //!!!QUADTREE??
-    //!!!TRY BRUTE FORCE FIRST
+    m_quadtree.resolveCollisions();
     m_isGroundBelowPlayer = true;
 }
 
-void Game::movePlayer(const float& dt) {
-    float ax(0);
-    float ay(0);
+void Game::moveAllEntities(const float& dt) {
+    int newX;
+    int newY;
+    for (auto& e : m_entities) {
+        // If the entity wants to move, we store its new position and remove from the quadtree using previous position.
+        // We then update the position and insert into the quadtree to be checked for collisions later
+        if (e->move(dt)) {
+            newX = e->m_x;
+            newY = e->m_y;
 
-    if (m_isGroundBelowPlayer) {
-        ay = 0;
-    } else {
-        ay = GRAVITY_ACCELERATION;
-    }
+            e->m_x = e->m_prevX;
+            e->m_y = e->m_prevY;
+            m_quadtree.remove(e);
 
-    m_player->setAcceleration(ax, ay);
-
-    Direction dir = Input::getInstance().getDirection();
-
-    if (dir == Direction::UP) {
-        if (!m_isGroundBelowPlayer) {
-            //!!!JUMP
+            e->m_x = newX;
+            e->m_y = newY;
+            m_quadtree.insert(e);
         }
-    } else if (dir == Direction::DOWN) {
-        if (m_isGroundBelowPlayer) {
-            //!!!CROUTCH
-        }
-    } else if (dir == Direction::RIGHT) {
-        m_player->setVelocityX(MOVE_SPEED);
-    } else if (dir == DIRECTION::LEFT) {
-        m_player->setVelocityX(-1 * MOVE_SPEED);
-    } else {
-        //!!!ERROR
     }
-
-    m_player->updateVelocity(dt);
-    m_player->updatePosition(dt);
-
 }
 
-void Game::moveEntities(const float& dt) {
-
-}
-
-void Game::moveScreen() {
+void Game::tryMoveScreen() {
     if (m_player->m_x < SCROLL_SCREEN_MARIO_X) {
         return;
     }
@@ -84,6 +69,7 @@ void Game::drawPlayer() {
     sf::RectangleShape rectangle(sf::Vector2f(5.0f, 5.0f)); // Width: 5, Height: 5
     rectangle.setFillColor(sf::Color::Green); // Set the fill color to green
     rectangle.setPosition(m_player->m_x, m_player->m_y); // Set the position (x, y) to (m_x, m_y)
+    m_window.draw(rectangle);
 }
 
 void Game::drawEntities() {

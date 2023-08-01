@@ -11,8 +11,8 @@ const uint32_t SCREEN_HEIGH(288 * SCALING_FACTOR);
 const float LOGIC_RATE(480.0f); // Rate at which logic updates
 const float FRAME_RATE(240.0f); // Frame rate
 
-const uint32_t INIT_MARIO_X(0);
-const uint32_t INIT_MARIO_Y(0);
+const uint32_t INIT_MARIO_X(4);
+const uint32_t INIT_MARIO_Y(4);
 const uint32_t INIT_MARIO_SUBX(0);
 const uint32_t INIT_MARIO_SUBY(0);
         
@@ -31,9 +31,10 @@ const float GRAVITY_ACCELERATION(0);
 const uint8_t INPUT_POLLING_RATE_MS(50);
 
 const uint8_t MAX_QUADTREE_LEVEL(8);
-const int QUADTREE_WEST_X(0);
-const int QUADTREE_EAST_X(128);
-const int QUADTREE_NORTH_Y(128);
-const int QUADTREE_SOUTH_Y(0);
+const uint8_t MAX_NUM_ENTITIES_PER_QUADTREE_NODE(4);
+const int QUADTREE_LEFT_X(0);
+const int QUADTREE_WIDTH(128);
+const int QUADTREE_BOTTOM_Y(0);
+const int QUADTREE_HEIGHT(128);
 
 #endif // CONSTANTS_H

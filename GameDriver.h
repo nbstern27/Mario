@@ -2,6 +2,7 @@
 #define GAMEDRIVER_H
 
 #include "Constants.h"
+#include "Quadtree.h"
 #include "Player.h"
 #include "Entity.h"
 #include "Enemy.h"
@@ -12,6 +13,7 @@
 #include <SFML/Audio.hpp>
 #include <thread>
 #include <memory>
+#include <vector>
 
 enum class Game_State {
     CUTSCENE,
@@ -22,10 +24,12 @@ enum class Game_State {
 class Game {
 private:
     sf::RenderWindow& m_window;
-    Player* m_player;
+    Quadtree m_quadtree;
+    std::vector<Entity*> m_entities;
+    std::unique_ptr<Player> m_player;
     Game_State m_Game_State;
     uint8_t m_numLives;
-    bool m_isGroundBelowPlayer
+    bool m_isGroundBelowPlayer;
 
 protected:
 public:
@@ -35,9 +39,8 @@ public:
     void updatePhysics(const float& dt);
     void updateGraphics();
 
+    void moveAllEntities(const float& dt);
     void checkCollisions();
-    void movePlayer(const float& dt);
-    void moveEntities(const float& dt);
     void moveScreen();
 
     void drawBackground();

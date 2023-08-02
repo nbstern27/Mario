@@ -16,9 +16,14 @@ Entity::Entity(int x, int y, float vx, float vy, float ax, float ay, int width, 
 Entity::~Entity() {}
 
 void Entity::move(const float dt, const bool isGroundBelow) {
-    setAcceleration(0, GRAVITY_ACCELERATION);
     updateVelocity(dt);
+
+    //Ensure we don't exceed max velocity
+    m_vx = std::max(m_vx, TERMINAL_VELOCITY_X);
+    m_vy = std::max(m_vy, TERMINAL_VELOCITY_Y);
+
     updatePosition(dt);
+    checkDespawn();
 }
 
 void Entity::updatePosition(const float dt) {s
@@ -27,20 +32,14 @@ void Entity::updatePosition(const float dt) {s
     m_prevY = m_y;
 
     //Distance traveled in time dt
-    m_x = m_vx * dt;
-    m_y = m_vy * dt;
-
-    checkDespawn();
+    m_x += m_vx * dt;
+    m_y += m_vy * dt;
 }
 
 void Entity::updateVelocity(const float dt) {
     //Update velocity over time dt
     m_vx += m_ax * dt;
     m_vy += m_ay * dt;
-
-    //Ensure we don't exceed max velocity
-    m_vx = std::max(m_vx, TERMINAL_VELOCITY_X);
-    m_vy = std::max(m_vy, TERMINAL_VELOCITY_Y);
 }
 
 void Entity::setVelocity(const float vx, const float vy) {

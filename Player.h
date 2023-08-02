@@ -4,10 +4,10 @@
 #include "Entity.h"
 #include <cstdint>
 
-enum class Mario_State {
-    SHORT,
-    TALL,
-    STAR
+enum class Player_State {
+    GROUNDED,
+    AIRBORNE,
+    DIVING
 };
 
 class Player : public Entity {
@@ -16,13 +16,13 @@ private:
     int m_suby;
 protected:
 public:
-    Mario_State m_Mario_State;
+    Player_State m_Player_State;
 
     Player();
     ~Player();
 
-    bool move(const float dt, const bool isGroundBelow) override;       // Mario moves with user input
-    void updatePosition(const float dt) overide;                        // Mario moves with subpixel precision
+    bool move(const float dt) override;                                 // Player moves with user input
+    void updatePosition(const float dt) overide;                        // Player moves with subpixel precision
 };
 
 #endif // PLAYER_H

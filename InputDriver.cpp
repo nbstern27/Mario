@@ -18,21 +18,57 @@ void Input::handleInputThread(bool& running) {
     }
 }
 
+bool Input::pressingUp() {
+    return Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::UP) || Joystick::isButtonPressed(0,0);
+}
+
+bool Input::pressingDown() {
+    return Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::Down) || Joystick::isButtonPressed(0, 1)
+}
+
+bool Input::pressingLeft() {
+    return Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::left) || Joystick::isButtonPressed(0, 2)
+}
+
+bool Input::pressingRight() {
+    return Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right) || Joystick::isButtonPressed(0, 3)
+}
+
 void Input::searchForInput() {
-    if (Keyboard::isKeyPressed(Keyboard::W) || Keyboard::isKeyPressed(Keyboard::Up) || Joystick::isButtonPressed(0, 0)) {
-        m_Direction = Direction::UP;
+    m_Direction = Direction::NONE;
+    m_Button = Button::NONE;
+
+    if (Keyboard::isKeyPressed(Keyboard::O)) {
+        m_Button = Button::A;
     }
 
-    if (Keyboard::isKeyPressed(Keyboard::S) || Keyboard::isKeyPressed(Keyboard::Down) || Joystick::isButtonPressed(0, 1)) {
-        m_Direction = Direction::DOWN;
+    if (Keyboard::isKeyPressed(Keyboard::P)) {
+        m_Button = Button::B;
     }
 
-    if (Keyboard::isKeyPressed(Keyboard::D) || Keyboard::isKeyPressed(Keyboard::Right) || Joystick::isButtonPressed(0, 3)) {
-        m_Direction = Direction::RIGHT;
-    }
-
-    if (Keyboard::isKeyPressed(Keyboard::A) || Keyboard::isKeyPressed(Keyboard::left) || Joystick::isButtonPressed(0, 2)) {
+    // Precedence on most recent input if there are two held inputs
+    if (pressingUp() && (!pressingDown() || (m_Direction != Direction::UP && m_Direction != Direction::UP_LEFT && m_Direction != Direction::UP_RIGHT))) {
+        if (pressingLeft() && (!pressingRight() || (m_Direction != Direction::UP_LEFT))) {
+            m_Direction = Direction::UP_LEFT;
+        } else if (pressingRight() && (!pressingLeft() || (m_Direction != Direction::UP_RIGHT))) {
+            m_Direction = Direction::UP_RIGHT;
+        } else {
+            m_Direction = Direction::UP;
+        }
+    } else if (pressingDown() && (!pressingUp() || (m_Direction != Direction::DOWN && m_Direction != Direction::DOWN_LEFT && m_Direction != Direction::DOWN_RIGHT))) {
+        if (pressingLeft() && (!pressingRight() || (m_Direction != Direction::DOWN_LEFT))) {
+            m_Direction = Direction::DOWN_LEFT;
+        } else if (pressingRight() && (!pressingLeft() || (m_Direction != Direction::DOWN_RIGHT))) {
+            m_Direction = Direction::DOWN_RIGHT;
+        } else {
+            m_Direction = Direction::DOWN;
+        }
+    } else if (pressingLeft() && (!pressingRight() || m_Direction != Direction::LEFT)) {
         m_Direction = Direction::LEFT;
+    } else if (pressingRight() && (!pressingLeft() || m_Direction != Direction::RIGHT)) {
+        m_Direction = Direction::RIGHT;
+    } else {
+        m_Direction = Direction::NONE;
     }
 }
 
